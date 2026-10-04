@@ -1,0 +1,8 @@
+pandas
+numpy
+openpyxl
+beautifulsoup4
+pdfplumber==0.9.0
+pdfminer.six==20221105
+Pillow
+pytest

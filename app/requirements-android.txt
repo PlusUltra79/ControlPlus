@@ -1,0 +1,10 @@
+# Dependencias Python que Chaquopy instala dentro de la APK.
+# pdfplumber 0.9.0 (no 0.11): las versiones nuevas exigen pypdfium2 (código nativo)
+# que no está garantizado en Android. Verificado: mismos resultados con tus PDF reales.
+pandas
+numpy
+openpyxl
+beautifulsoup4
+pdfplumber==0.9.0
+pdfminer.six==20221105
+Pillow

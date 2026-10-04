@@ -1,0 +1,47 @@
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+    id "com.chaquo.python"
+}
+
+android {
+    namespace "com.moussacorp.controlplus"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.moussacorp.controlplus"
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0.0"
+
+        ndk {
+            // Por defecto solo arm64 (casi todos los teléfonos actuales) => APK más liviana.
+            // Para emulador x86_64:  gradle assembleDebug -Pabis=arm64-v8a,x86_64
+            def lista = (project.findProperty("abis") ?: "arm64-v8a").toString().split(",")
+            lista.each { abiFilters.add(it.trim()) }
+        }
+    }
+
+    buildTypes {
+        release { minifyEnabled false }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions { jvmTarget = "17" }
+    packaging { jniLibs { useLegacyPackaging = true } }
+}
+
+chaquopy {
+    defaultConfig {
+        version = "3.12"
+        pip { install "-r", "requirements-android.txt" }
+    }
+}
+
+dependencies {
+    implementation "androidx.core:core-ktx:1.15.0"
+    implementation "androidx.activity:activity-ktx:1.9.3"
+}
