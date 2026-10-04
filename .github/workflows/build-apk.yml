@@ -1,0 +1,51 @@
+name: Compilar APK
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:        # permite ejecutarlo a mano desde la pestaña Actions
+
+jobs:
+  pruebas-python:
+    name: Pruebas de la lógica (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Instalar dependencias de prueba
+        run: pip install pandas numpy openpyxl beautifulsoup4 pdfplumber==0.9.0 pdfminer.six==20221105 Pillow pytest
+      - name: Pruebas en modo Android (sin tkinter / calamine / lxml)
+        run: CP_FORCE_FALLBACK=1 pytest -q tests/test_humo.py
+
+  apk:
+    name: Construir APK
+    needs: pruebas-python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+
+      # Chaquopy necesita un Python de compilación con la MISMA versión (3.12) que la app.
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.9" }
+
+      - name: Compilar APK (debug, firmada con clave de depuración)
+        run: gradle --no-daemon assembleDebug
+
+      - name: Renombrar APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk ControlPlusCCO-v1.0.0.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ControlPlusCCO-apk
+          path: ControlPlusCCO-v1.0.0.apk
+          if-no-files-found: error
