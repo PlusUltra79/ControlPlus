@@ -33,7 +33,12 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
 
-      - uses: android-actions/setup-android@v3
+      # ubuntu-latest ya trae el SDK de Android (ANDROID_HOME); solo se aceptan las licencias.
+      - name: Preparar SDK de Android
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
 
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: "8.9" }
